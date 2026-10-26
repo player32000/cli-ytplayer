@@ -109,8 +109,3 @@ anterior.
   Me gusta o de una playlist específica.
 - [README en inglés](../README.md).
 
-## Publicación en GitHub
-
-Revisá los archivos que vas a agregar. No publiques cookies, archivos
-descargados, archivos de progreso ni binarios de terceros. `.gitignore` ayuda
-a excluir datos locales, pero no reemplaza una revisión manual.
