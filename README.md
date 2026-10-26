@@ -100,5 +100,12 @@ archive is `download_archive.txt` and preserves the existing download history.
 - `windows_console.py`: Windows-only instant key input and console selection
   handling. Other operating systems use the standard Python input method.
 - `download_playlist.py`: downloads all items in a liked or custom playlist.
+- `LICENSE`: MIT License.
 - [`Spanish README`](es/README.md): translated documentation with a link back
   to this English README.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE). You may use, modify,
+and redistribute it, including in commercial projects, provided the copyright
+and license notices are kept. The software is provided without warranty.
