@@ -1,11 +1,11 @@
-# TubeQueue
+# CLI YT Player
 
 [English](../README.md) | [Español](README.md)
 
-TubeQueue es una herramienta de línea de comandos para buscar, reproducir en
-streaming y descargar videos individuales y playlists de YouTube y YouTube
-Music. Los scripts principales están en la raíz y se mantienen en una sola
-versión, con nombres, variables y mensajes en inglés.
+CLI YT Player es una herramienta multiplataforma de línea de comandos para
+buscar, reproducir en streaming y descargar videos individuales y playlists de
+YouTube y YouTube Music. Los scripts principales están en la raíz y se
+mantienen en una sola versión, con nombres, variables y mensajes en inglés.
 
 ## Funciones
 
@@ -20,7 +20,7 @@ versión, con nombres, variables y mensajes en inglés.
 
 ## Instalación en Windows
 
-TubeQueue necesita Python y herramientas multimedia externas; el lanzamiento
+CLI YT Player necesita Python y herramientas multimedia externas; el lanzamiento
 no incluye esos programas. Instalá Python 3.10 o posterior y luego la
 dependencia de Python desde esta carpeta:
 
@@ -32,16 +32,16 @@ La reproducción necesita `mpv`. La conversión a MP3 necesita `ffmpeg` en el
 `PATH`. yt-dlp también necesita Node.js 22 o posterior, o Deno 2.3 o posterior,
 para acceder a YouTube. Consultá [Requisitos](#requisitos) para más detalles.
 
-Para ejecutar `tubequeue` desde cualquier carpeta en CMD:
+Para ejecutar `cli-ytplayer` desde cualquier carpeta en CMD:
 
 1. Guardá esta carpeta en una ubicación permanente o descargá y extraé el
-   proyecto allí (por ejemplo, `%LOCALAPPDATA%\Programs\TubeQueue`).
+   proyecto allí (por ejemplo, `%LOCALAPPDATA%\Programs\cli-ytplayer`).
 2. Agregá esa carpeta al **Path del usuario** desde **Editar las variables de
    entorno de tu cuenta** en Windows. Agregá la carpeta, no el archivo `.cmd`.
-3. Cerrá y volvé a abrir CMD; después ejecutá `tubequeue` o
-   `tubequeue --help`.
+3. Cerrá y volvé a abrir CMD; después ejecutá `cli-ytplayer` o
+   `cli-ytplayer --help`.
 
-El lanzador `tubequeue.cmd` abre el reproductor interactivo y pasa los
+El lanzador `cli-ytplayer.cmd` abre el reproductor interactivo y pasa los
 argumentos a `player.py`. Cuando termina el programa, el lanzador espera que
 presiones una tecla antes de cerrar, para que puedas leer los mensajes. Esta
 pausa también ocurre si lo ejecutás desde una ventana de CMD ya abierta. Las
@@ -49,12 +49,18 @@ descargas y los historiales de progreso se guardan en la carpeta actual de CMD.
 Python y las herramientas externas deben instalarse por separado.
 
 Para contribuir al código, cloná el repositorio o descargá el archivo fuente.
-Cuando haya una versión empaquetada para Windows, se podrá distribuir desde
-GitHub Releases.
+La versión portable para Windows se distribuye como archivo adjunto en GitHub
+Releases.
+
+Para crear el ejecutable de Windows desde el código fuente, ejecutá
+`.\build-windows.ps1` en PowerShell. El resultado es
+`dist\cli-ytplayer-windows-x64.zip`, con el ejecutable, el lanzador, la licencia y
+la guía detallada de [instalación y uso en Windows](WINDOWS-RELEASE-README.md).
+La compilación incluye Python y CLI YT Player, pero no mpv, FFmpeg ni Node.js/Deno.
 
 ## Requisitos
 
-- **Python 3.10 o posterior** ejecuta TubeQueue. El lanzador `tubequeue.cmd`
+- **Python 3.10 o posterior** ejecuta CLI YT Player. El lanzador `cli-ytplayer.cmd`
   para Windows comprueba si está instalado y explica cómo instalarlo si falta.
 - **yt-dlp** busca en YouTube, lee las playlists, reproduce contenido en
   streaming y descarga audio o video. Instalalo con sus componentes incluidos:
@@ -72,7 +78,7 @@ GitHub Releases.
   de audio y video. Es necesario para descargar y opcional durante la
   reproducción.
 
-Antes de conectarse a YouTube, TubeQueue comprueba el runtime JavaScript y,
+Antes de conectarse a YouTube, CLI YT Player comprueba el runtime JavaScript y,
 cuando corresponde, FFmpeg o mpv. Si falta algo, muestra para qué sirve y
 orientación para instalarlo. El lanzador de Windows avisa si falta Python 3.10+.
 
@@ -84,13 +90,13 @@ Para ver opciones de instalación en Windows, macOS y Linux, consultá la
 [guía oficial de instalación de mpv](https://mpv.io/installation/).
 Si mpv termina con el código `0xC000001D` o Windows informa una instrucción de
 CPU no compatible, probá una compilación x86-64 estándar y evitá las variantes
-optimizadas para procesadores más nuevos (como `64bit-v3`). Para que TubeQueue
+optimizadas para procesadores más nuevos (como `64bit-v3`). Para que CLI YT Player
 use una versión portable específica, extraé el archivo de modo que `mpv.exe` y
 sus DLL queden directamente dentro de una carpeta `mpv-portable`, junto a
 `player.py`. Por ejemplo:
 
 ```
-TubeQueue\
+cli-ytplayer\
   player.py
   mpv-portable\
     mpv.exe
@@ -98,7 +104,7 @@ TubeQueue\
 ```
 
 Conservá las DLL y los demás archivos del archivo comprimido junto a `mpv.exe`.
-TubeQueue busca primero esa carpeta y después las instalaciones de mpv del
+CLI YT Player busca primero esa carpeta y después las instalaciones de mpv del
 `PATH`.
 
 ## Cookies y acceso a la cuenta
@@ -151,6 +157,8 @@ falla más adelante, es posible que la sesión haya vencido; iniciá sesión de
 nuevo y exportá un archivo actualizado.
 En Windows, esa configuración se guarda en `%LOCALAPPDATA%\YouTubePlaylistCLI`;
 en macOS y Linux, en `~/.config/youtube-playlist-cli`.
+Se conservan los nombres existentes de estas carpetas para que las rutas de
+cookies guardadas sigan funcionando después de actualizar.
 
 También podés usar directamente las opciones de consola:
 
