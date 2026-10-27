@@ -1,0 +1,16 @@
+# Account cookies and authentication exports
+*cookies*
+*Cookies*
+
+# Downloaded media and yt-dlp progress
+descargas_*/
+download_archive.txt
+download_archive_audio.txt
+download_archive_video.txt
+
+# Local mpv binaries, generated packages, and Python cache
+mpv-portable/
+youtube-playlist-cli*.zip
+release-prep/
+__pycache__/
+*.py[cod]

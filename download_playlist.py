@@ -18,11 +18,13 @@ Sources:
 Cookies are not discovered automatically. Pass a Netscape-format cookie file
 with --cookies, or omit it to use the browser selected with --browser.
 
-Progress is shared with player.py and stored in download_archive.txt to
-preserve existing download history.
+Progress is shared with player.py and tracked separately for audio and video.
+Existing history in download_archive.txt is copied to each format archive on
+its first use.
 """
 
 import argparse
+import os
 import shutil
 import sys
 
@@ -30,8 +32,20 @@ try:
     import yt_dlp
     from yt_dlp.utils import sanitize_filename
 except ImportError:
-    print('yt-dlp is missing. Install it with: python -m pip install -U "yt-dlp[default]"')
+    from dependency_check import report_missing_python_package
+
+    report_missing_python_package(
+        "yt-dlp",
+        'python -m pip install -r requirements.txt',
+        "TubeQueue uses it to read playlists and download media.",
+    )
     sys.exit(1)
+
+from dependency_check import (
+    check_python_version,
+    check_runtime_dependencies,
+    supported_javascript_runtimes,
+)
 
 
 # These are the built-in playlists: "lm" is YouTube Music likes, and "ll"
@@ -49,22 +63,42 @@ FIXED_SOURCES = {
     },
 }
 
-# yt-dlp stores completed video IDs here so later runs can skip them.
+# Keep audio and video progress separate so changing formats does not skip items.
 DOWNLOAD_ARCHIVE = "download_archive.txt"
+MODE_DOWNLOAD_ARCHIVES = {
+    "audio": "download_archive_audio.txt",
+    "video": "download_archive_video.txt",
+}
+
+
+def get_download_archive(mode: str) -> str:
+    """Return a per-format archive, seeding it from the legacy shared archive."""
+    archive_path = MODE_DOWNLOAD_ARCHIVES[mode]
+    if not os.path.exists(archive_path) and os.path.isfile(DOWNLOAD_ARCHIVE):
+        try:
+            shutil.copyfile(DOWNLOAD_ARCHIVE, archive_path)
+        except OSError as error:
+            raise OSError(
+                f"Could not initialize the {mode} download archive '{archive_path}': {error}"
+            ) from error
+    return archive_path
 
 
 def cookie_options(browser: str, cookie_file: str) -> dict:
     """Choose how yt-dlp signs in: use the cookie file, or the selected browser."""
     if cookie_file:
         return {"cookiefile": cookie_file}
+    if browser == "none":
+        return {}
     return {"cookiesfrombrowser": (browser,)}
 
 
 def youtube_javascript_options() -> dict:
     """Set up the helper yt-dlp needs to read YouTube's available formats."""
     options = {"remote_components": ["ejs:github"]}
-    if shutil.which("node"):
-        options["js_runtimes"] = {"node": {}}
+    runtimes = supported_javascript_runtimes()
+    if runtimes:
+        options["js_runtimes"] = {runtimes[0]: {}}
     return options
 
 
@@ -97,7 +131,7 @@ def get_source_config(source: str, playlist_url: str, browser: str, cookie_file:
 def build_download_options(config: dict, mode: str, browser: str, cookie_file: str) -> dict:
     """Tell yt-dlp what to download, where to save it, and how to sign in."""
     options = {
-        "download_archive": DOWNLOAD_ARCHIVE,
+        "download_archive": get_download_archive(mode),
         "ignoreerrors": True,
         "outtmpl": f"{config['folder']}/{config['filename_template']}",
         "noplaylist": False,
@@ -150,6 +184,9 @@ def add_common_arguments(parser: argparse.ArgumentParser) -> None:
 
 
 def main() -> None:
+    if not check_python_version():
+        sys.exit(1)
+
     # Read the user's choices from the command line.
     parser = argparse.ArgumentParser(description="Download a YouTube liked playlist or a custom playlist.")
     add_common_arguments(parser)
@@ -161,6 +198,9 @@ def main() -> None:
         help="Download as audio (MP3) or video (MP4) (default: audio)",
     )
     args = parser.parse_args()
+
+    if not check_runtime_dependencies("download"):
+        sys.exit(1)
 
     # Turn the selected source into its URL and destination settings.
     try:
@@ -174,7 +214,7 @@ def main() -> None:
     print(f"Output folder: {config['folder']}")
     print()
 
-    # Download every item in the playlist; yt-dlp updates the shared archive.
+    # Download every item in the playlist; yt-dlp updates its format archive.
     options = build_download_options(config, args.mode, args.browser, args.cookies)
     with yt_dlp.YoutubeDL(options) as ydl:
         ydl.download([config["url"]])
